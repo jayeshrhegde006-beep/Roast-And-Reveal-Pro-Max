@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roast & Reveal | Premium Coffee Explorer</title>
+    <meta name="description"
+        content="Explore the world of specialty coffee with professional insights, 3D visualizations, and comprehensive tasting guides.">
+    <link rel="stylesheet" href="index.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Three.js for 3D Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-card" id="login-form">
+            <h2>Welcome Back</h2>
+            <p>Elevate your coffee experience.</p>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+            <button class="auth-btn" id="btn-login">Sign In</button>
+            <div class="auth-switch">
+                New to Roast & Reveal? <span id="switch-to-signup">Create Account</span>
+            </div>
+        </div>
+
+        <div class="auth-card hidden" id="signup-form">
+            <h2>Create Account</h2>
+            <p>Join our global coffee community.</p>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="At least 8 characters">
+            </div>
+            <button class="auth-btn" id="btn-signup">Register Now</button>
+            <div class="auth-switch">
+                Already have an account? <span id="switch-to-login">Sign In</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i data-lucide="coffee"></i>
+                <span>ROAST & REVEAL</span>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item active" data-view="coffees">
+                    <i data-lucide="layout-grid"></i>
+                    <span>Coffee Library</span>
+                </li>
+                <li class="nav-item" data-view="regions">
+                    <i data-lucide="map"></i>
+                    <span>Origins</span>
+                </li>
+                <li class="nav-item" data-view="world-map">
+                    <i data-lucide="globe"></i>
+                    <span>World Map</span>
+                </li>
+                <li class="nav-item" data-view="varieties">
+                    <i data-lucide="sprout"></i>
+                    <span>Varieties</span>
+                </li>
+                <li class="nav-item" data-view="products">
+                    <i data-lucide="shopping-cart"></i>
+                    <span>Coffee Shop</span>
+                </li>
+                <li class="nav-item" data-view="brewing_methods">
+                    <i data-lucide="droplet"></i>
+                    <span>Brew Methods</span>
+                </li>
+                <li class="nav-item" data-view="roasters">
+                    <i data-lucide="award"></i>
+                    <span>Top Roasters</span>
+                </li>
+                <li class="nav-item" data-view="journal">
+                    <i data-lucide="book-open"></i>
+                    <span>Tasting Journal</span>
+                </li>
+                <li class="nav-item" data-view="guide">
+                    <i data-lucide="info"></i>
+                    <span>Coffee Guide</span>
+                </li>
+                <li class="nav-item" data-view="history">
+                    <i data-lucide="scroll"></i>
+                    <span>Coffee History</span>
+                </li>
+                <li class="nav-item logout-item" id="nav-logout" style="margin-top: auto; color: #ff5252;">
+                    <i data-lucide="log-out"></i>
+                    <span>Log Out</span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="global-search" placeholder="Search origins, varieties, roasters...">
+                </div>
+                <div class="header-actions" style="display: flex; gap: 1.5rem; align-items: center;">
+                    <div class="cart-btn" id="open-cart"
+                        style="position: relative; cursor: pointer; padding: 0.5rem; background: var(--glass); border-radius: 12px; border: 1px solid var(--glass-border); transition: var(--transition);">
+                        <i data-lucide="shopping-cart"></i>
+                        <span id="cart-count"
+                            style="position: absolute; top: -5px; right: -5px; background: var(--accent); color: var(--bg-dark); font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="hero" id="hero-section">
+                <h1>Crafting Perfection.</h1>
+                <p>Discover the journey from seed to cup. Explore curated varieties, artisanal roasts, and the science
+                    of brewing.</p>
+            </section>
+
+            <div class="dashboard-grid" id="content-grid">
+                <!-- Content will be injected here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" id="close-modal">
+                <i data-lucide="x"></i>
+            </button>
+            <div id="modal-body">
+                <!-- Details injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkout-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="close-btn" id="close-checkout">
+                <i data-lucide="x"></i>
+            </button>
+            <div id="checkout-body">
+                <h2>Complete Your Order</h2>
+                <div id="cart-items-list" style="margin: 2rem 0; max-height: 200px; overflow-y: auto;">
+                    <!-- Cart items here -->
+                </div>
+                <div style="border-top: 1px solid var(--glass-border); padding-top: 1rem; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700;">
+                        <span>Total</span>
+                        <span id="cart-total">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="payment-form" style="display: grid; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Card Details</label>
+                        <input type="text" placeholder="1234 5678 1234 5678">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Expiry</label>
+                            <input type="text" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" placeholder="123">
+                        </div>
+                    </div>
+                    <button class="auth-btn" id="btn-pay" style="width: 100%;">Pay Now</button>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); text-align: center;">Secure payment processed
+                        by Roast & Reveal Pay</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
